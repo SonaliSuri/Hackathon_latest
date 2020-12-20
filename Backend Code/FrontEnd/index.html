@@ -1,0 +1,352 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opencv JS Fast</title>
+    <script async src="js/opencv.js" onload="openCvReady();"></script>
+    <script src="js/utils.js"></script>
+         <link rel="stylesheet" href="camera.css">
+
+</head>
+<body>
+
+   
+
+<div class="b-g"></div>
+
+<div class="b-g2"></div>
+<h1>OpenCV Camera</h1>
+    <div>
+        
+    </div>
+<div class="iphone">
+    
+
+      <div class="naver">
+    
+  <div id="golef" class="licon"><i class="fas fa-comment-alt"></i></div>      
+        <div class="underline-l"></div>
+        
+   <div id="snapBtn" class="action flee"></div>
+        
+   <div id="homep" class="action"></div>      
+    
+        
+        <div id="gorig" class="ricon"><i class="fas fa-th-large"></i></div>
+        
+        <div class="underline-r"></div>
+        
+        </div>
+  
+  <div class="page">
+    
+    
+    <div onclick="clearPhoto()" class="cross"><i class="fas fa-times"></i></div>
+    
+    <div id="switchFrontBtn" class="cameras lk"><i class="fas fa-retweet"></i></div>
+    
+        <div id="switchBackBtn" class="cameras kl"><i class="fas fa-retweet"></i></div>
+  
+    <div class="bitmo"><i class="fas fa-user"></i></div>
+    
+  <input class="search" placeholder="Original streaming">
+      
+    <div class="mglass"><i class="fas fa-search"></i></div>
+    
+    <video id="cam" autoplay muted playsinline>Not available</video>
+  <canvas id="canvas" style="display:none"></canvas>  
+       <button id="actionBtn">Start</button>
+  <video id="cam_input" width="300" height="225"></video>
+    
+    
+
+    
+    <div class="page-l">
+
+    </div>
+    
+    <div class="page-r">
+
+    </div>
+       
+    </div>  
+  </div>
+    
+    
+    
+    
+    
+    <div class="iphone2">
+    
+
+      <div class="naver">
+    
+  <div id="golef" class="licon"><i class="fas fa-comment-alt"></i></div>      
+        <div class="underline-l"></div>
+        
+   <div id="snapBtn" class="action flee"></div>
+        
+   <div id="homep" class="action"></div>      
+    
+        
+        <div id="gorig" class="ricon"><i class="fas fa-th-large"></i></div>
+        
+        <div class="underline-r"></div>
+        
+        </div>
+  
+  <div class="page">
+    
+    
+    <div onclick="clearPhoto()" class="cross"><i class="fas fa-times"></i></div>
+    
+    <div id="switchFrontBtn" class="cameras lk"><i class="fas fa-retweet"></i></div>
+    
+        <div id="switchBackBtn" class="cameras kl"><i class="fas fa-retweet"></i></div>
+  
+    <div class="bitmo"><i class="fas fa-user"></i></div>
+    
+  <input class="search" placeholder="After detection">
+    <div class="mglass"><i class="fas fa-search"></i></div>
+    
+    <video id="cam" autoplay muted playsinline>Not available</video>
+  <canvas id="canvas" style="display:none"></canvas>  
+      <canvas id="canvasOutput"></canvas>  
+    
+    
+
+    
+    <div class="page-l">
+
+    </div>
+    
+    <div class="page-r">
+
+    </div>
+       
+    </div>  
+  </div>
+</body>
+<script type="text/JavaScript">
+function openCvReady() {
+
+    let streaming = false;
+    const video = document.getElementById('video');
+    const actionBtn = document.getElementById('actionBtn');
+    const width = 300;
+    const height = 225;
+    let cap;
+    let src;
+    let dst;
+    let gray;
+    let faces;
+    let classifier;
+    let utils;
+    let faceCascadeFile;
+    let rect;
+    cv['onRuntimeInitialized']=()=>{
+        let video = document.getElementById("cam_input"); // video is the id of video tag
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(function(stream) {
+            video.srcObject = stream;
+            video.play();
+        })
+        .catch(function(err) {
+            console.log("An error occurred! " + err);
+        });
+
+        cap = new cv.VideoCapture(cam_input);
+        faces = new cv.RectVector();
+        classifier = new cv.CascadeClassifier();
+        utils = new Utils('errorMessage');
+        faceCascadeFile = 'haarcascade_frontalface_default.xml'; // path to xml
+        utils.createFileFromUrl(faceCascadeFile, faceCascadeFile, () => {
+            classifier.load(faceCascadeFile); // in the callback, load the cascade from file
+        });
+    }
+
+    actionBtn.addEventListener('click', () => {
+        if (streaming) {
+            stop();
+            actionBtn.textContent = 'Start';
+        } else {
+            start();
+            actionBtn.textContent = 'Stop';
+        }
+    });
+
+
+    function start () {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(_stream => {
+            let video = document.getElementById("cam_input"); // video is the id of video tag
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(function(stream) {
+            video.srcObject = stream;
+            video.play();
+        })
+        .catch(function(err) {
+            console.log("An error occurred! " + err);
+        });
+
+
+        stream = _stream;
+        console.log('stream', stream);
+        video.srcObject = stream;
+        video.play();
+        streaming = true;
+
+
+        src = new cv.Mat(height, width, cv.CV_8UC4);
+        dst = new cv.Mat(height, width, cv.CV_8UC1);
+        gray = new cv.Mat(height, width, cv.CV_8UC1);
+        faces = new cv.RectVector();
+        setTimeout(processVideo, 0)
+        })
+        .catch(err => console.log(`An error occurred: ${err}`));
+    }
+
+    function stop () {
+        if (video) {
+            video.pause();
+            video.srcObject = null;
+        }
+        if (stream) {
+            stream.getVideoTracks()[0].stop();
+        }
+        streaming = false;
+    }
+
+    const FPS = 1;
+    function processVideo() {
+        if (!streaming) {
+            src.delete();
+            dst.delete();
+            return;
+        }
+        let begin = Date.now();
+        cap.read(src);
+        src.copyTo(dst);
+        cv.cvtColor(dst, gray, cv.COLOR_RGBA2GRAY, 0);
+        try{
+            classifier.detectMultiScale(gray, faces, 1.1, 3, 0);
+            console.log(faces.size());
+        }catch(err){
+            console.log(err);
+        }
+        
+        rects = []
+        for (let i = 0; i < faces.size(); ++i) {
+            let face = faces.get(i);
+            let point1 = new cv.Point(face.x, face.y);
+            let point2 = new cv.Point(face.x + face.width, face.y + face.height);
+            cv.rectangle(dst, point1, point2, [255, 0, 0, 255]);
+            rect = {x : face.x, y : face.y, width : face.width, height : face.height};
+            rect1=[face.x,face.y,face.width,face.height]
+            rects.push(rect1);
+        }
+        
+
+        if (rects.length > 0)
+        {
+            //cropped = src.roi(rect);
+            cropped = src;
+            // cv.imshow("canvasOutput", cropped);
+            let tempCanvas = document.createElement("canvas");
+            cv.imshow(tempCanvas, cropped)
+
+            let b64image = tempCanvas.toDataURL()
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({"image":b64image.split(',')[1], "faces":rects});
+            
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            const proxyurl = "https://cors-anywhere.herokuapp.com/";
+            const serverurl = "https://cse212.wn.r.appspot.com/detect_mask_2";
+            fetch( serverurl, requestOptions)
+              .then(response => response.json())
+              .then(
+                        result => {
+                        //console.log(result);
+             
+                        for (let l = 0; l < rects.length; ++l) {
+                            
+                            prediction = result[l.toString()]["mask"];
+                            score = result[l.toString()]["score"];
+                            boxes = result[l.toString()]["box"];
+                            midpt = result[l.toString()]["mid_point"];
+
+                            //console.log(l.toString()["im_bt"]);
+                            cv.putText(
+                                        dst, 
+                                        String(prediction + ":" + score.toFixed(2)), 
+                                        new cv.Point(midpt[0], boxes[1]),
+                                        cv.FONT_ITALIC,
+                                        0.5, 
+                                        [0, 255, 255, 255], 
+                                        2, 
+                                        cv.LINE_4
+                                    )
+                            cv.circle(dst, new cv.Point(midpt[0], midpt[1]), 2, [0, 0, 255, 255], 2)
+                        }
+                        
+                        distances = result[rects.length.toString()];
+                        console.log(distances+"$$$$$$$$");
+                        console.log('distances.length '+Object.keys(distances).length);
+                        for (let m = 0; m < Object.keys(distances).length; ++m) {
+                            console.log(distances["distances"][m])
+                            if (distances["distances"][m] == undefined)
+                                {
+                                    break;
+                                }
+                            console.log("$$$$$$$"+distances[m]);
+                            start = distances["distances"][m][0];
+                            
+                            end = distances["distances"][m][1];
+                            distance = distances["distances"][m][2];
+                            //console.log('W##############');
+                           // console.log(start[0], start[1], distance);
+                          //  console.log(end[0], end[1], distance);
+                         //   console.log('W##############');
+                            cv.line(dst, new cv.Point(start[0], start[1]), new cv.Point(end[0], end[1]), [255, 0, 0, 0], 2, cv.LINE_AA, 0);
+                            
+                            cv.putText(
+                                        dst, 
+                                        String((distance*7.5).toFixed(2)), 
+                                        new cv.Point((start[0]+end[0])/2, (start[1]+end[1])/2),
+                                        cv.FONT_ITALIC,
+                                        0.5, 
+                                        [0, 255, 255, 255],
+                                        2, 
+                                        cv.LINE_4
+                                    )
+
+                        }
+                        
+
+                        cv.imshow('canvasOutput', dst);
+                        // const delay = 400  - (Date.now() - begin);
+                        // console.log(delay)
+                        setTimeout(processVideo, 0);
+                        }
+                   )
+              .catch(error => console.log('error', error));
+        }
+        else{
+            cv.imshow('canvasOutput', dst);
+            const delay = 500  - (Date.now() - begin);
+            console.log(delay)
+            setTimeout(processVideo, 0);
+        }
+
+    }
+}
+</script>
+</html>

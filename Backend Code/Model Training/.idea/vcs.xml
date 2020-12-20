@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/face-detection-opencv-js" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/heatmap.js" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/opencv-web-video" vcs="Git" />
+  </component>
+</project>
